@@ -66,7 +66,7 @@ html
       }
 
       a:hover {
-        background: #eee;
+        background: #ddd;
       }
 
       .container {
@@ -86,7 +86,7 @@ html
       }
 
       .link {
-        background: #fff;
+        background: #F5F7F8;
         display: block;
         margin: 0 auto;
         width: 100%;
@@ -110,7 +110,7 @@ html
       }
 
       .donate {
-        margin-top: 1em;
+        margin: 1em 0;
         text-align: center;
         display: flex;
         font-size: 2em;
@@ -122,11 +122,11 @@ html
   body
     .background
     .container
+      a.link.donate(href="https://shopee.tw/product/19479505/1372690349/", target="_blank")
+        span 用新台幣下架好康的貼紙
       a.link.origin(href=link.originLink)
         h1=link['og:title']
         .preview(style=`background-image:url(${link['og:image']})`)      
       a.link.donate(href="https://paypal.me/zackexplosion?country.x=TW&locale.x=zh_TW", target="_blank")
-        span 用Paypal贊助版主發廢文
-      a.link.donate(href="https://shopee.tw/product/19479505/1372690349/", target="_blank")
-        span 用新台幣下架好康的貼紙!
+        span 用Paypal贊助版主發廢文!
     

@@ -30,17 +30,37 @@ app.get('/r/:id', async (req, res) => {
 
     if(!link) return res.send('404')
 
-    if(link.redirectOnly && link.redirectOnly === true) {
+    // Update counter
+    links.updateOne(
+      {_id: new ObjectId(req.params.id)},
+      { $inc: { accessTimes: 1 } }
+    )
 
-      // Update counter
-      links.updateOne(
-        {_id: new ObjectId(req.params.id)},
-        { $inc: { redirectTimes: 1 } }
-      )
+    if(link.redirectOnly && link.redirectOnly === true) {
       return res.redirect(link.originLink)
     }
 
     return res.render('donate', { link });
+  } catch (error) {
+    console.error(error)
+    res.send('error')
+  }
+})
+
+
+app.put('/r/:id', async (req, res) => {
+
+  try {
+    const database = client.db('Links');
+    const links = database.collection("Links");
+
+    // Update counter
+    link =  await links.updateOne(
+      {_id: new ObjectId(req.params.id)},
+      { 
+
+      }
+    )
   } catch (error) {
     console.error(error)
     res.send('error')

@@ -67,6 +67,18 @@ app.post('/auth', passwordCheck, (req, res) => {
   res.send('OK')
 })
 
+app.delete('/r/:id', passwordCheck, async (req, res) => {
+  const database = client.db('Links');
+  const links = database.collection("Links");
+  console.log('req.params.id', req.params.id)
+  try {
+    var link = await links.deleteOne({ _id: new ObjectId(req.params.id) })
+    return res.send('ok')
+  } catch (error) {
+    return res.send(error)    
+  }
+})
+
 app.get('/link-list', passwordCheck,  async (req, res) => {
   const database = client.db('Links');
   const links = database.collection("Links");
@@ -83,17 +95,6 @@ app.get('/link-list', passwordCheck,  async (req, res) => {
   res.json(result)
 })
 
-
-app.delete('/r:/id', passwordCheck, async (req, res) => {
-  const database = client.db('Links');
-  const links = database.collection("Links");
-  try {
-    var link = await links.deleteOne({ _id: new ObjectId(req.params.id) })
-    return res.send('ok')
-  } catch (error) {
-    return res.send(error)    
-  }
-})
 
 app.post('/preview-link', passwordCheck,  async (req, res) => {
   const originLink = req.body.url

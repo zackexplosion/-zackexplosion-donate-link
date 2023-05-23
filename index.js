@@ -8,7 +8,6 @@ const cors = require('cors')
 const port = process.env.PORT || 4001
 const parsePage = require('./parsePage')
 
-
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -55,7 +54,7 @@ app.get('/r/:id', async (req, res) => {
 })
 
 function passwordCheck(req, res, next) {
-  const password = req.headers.password
+  const password = req.headers.password || req.body.password
   if(password !== PASSWORD) {
     res.status(400)
     return res.send(':(')

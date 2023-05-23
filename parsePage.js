@@ -16,6 +16,7 @@ function parsePage(url) {
       return link
     } catch (error) {
       console.error(error)
+      return false
     }
   })
 }

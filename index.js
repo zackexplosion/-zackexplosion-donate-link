@@ -4,6 +4,7 @@ const PASSWORD = process.env.PASSWORD
 const HOMEPAGE = process.env.HOMEPAGE || 'https://www.facebook.com/zackexplosion'
 const express = require('express')
 const app = express()
+const cors = require('cors')
 const port = process.env.PORT || 4001
 const parsePage = require('./parsePage')
 
@@ -18,6 +19,7 @@ const client = new MongoClient(uri, {
 })
 
 app.set('view engine', 'pug');
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
@@ -53,35 +55,77 @@ app.get('/r/:id', async (req, res) => {
 })
 
 function passwordCheck(req, res, next) {
-  const password = req.body.password || req.query.password
+  const password = req.headers.password
   if(password !== PASSWORD) {
-    return res.send('wrong password')
+    res.status(400)
+    return res.send(':(')
   }
 
   next()
 }
 
+app.post('/auth', passwordCheck, (req, res) => {
+  res.send('OK')
+})
+
 app.get('/link-list', passwordCheck,  async (req, res) => {
   const database = client.db('Links');
   const links = database.collection("Links");
-  const linkList = await links.find({}).sort({_id: -1})
-  res.json(linkList)
+  const query = {}
+  const cursor = links.find(query).sort({_id: -1})
+  const result = []
+  // print a message if no documents were found
+  if ((await links.countDocuments(query)) === 0) {
+    console.log("No documents found!");
+  }
+  for await (const link of cursor) {
+    result.push(link)
+  }
+  res.json(result)
 })
 
-app.put('/r', passwordCheck, async (req, res) => {
+
+app.delete('/r:/id', passwordCheck, async (req, res) => {
+  const database = client.db('Links');
+  const links = database.collection("Links");
+  try {
+    var link = await links.deleteOne({ _id: new ObjectId(req.params.id) })
+    return res.send('ok')
+  } catch (error) {
+    return res.send(error)    
+  }
+})
+
+app.post('/preview-link', passwordCheck,  async (req, res) => {
+  const originLink = req.body.url
+  try {
+    const _link = await parsePage(originLink)
+
+    if(_link) {
+      return res.json(_link)
+    } else {
+      res.status(400).send('error')
+    }
+
+  } catch (error) {
+    res.status(400).send(error)
+  }
+
+})
+
+app.post('/r', passwordCheck, async (req, res) => {
   try {
     const originLink = req.body.url
+    const hostSite = req.body.hostSite || 'zack'
     const _link = await parsePage(originLink)
 
     const database = client.db('Links');
     const links = database.collection("Links");
 
-    const redirectOnly = (req.body.redirectOnly.toString().toLowerCase() === 'true')
-
     const link = {
       ..._link,
       originLink,
-      redirectOnly,
+      hostSite,
       createdAt: new Date()
     }
     links.insertOne(link)
